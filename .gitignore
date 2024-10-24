@@ -1,3 +1,14 @@
+/.env
+/node_modules
+/node_modules/*
+/node_modules/.bin
+node_modules/
+coverage/
+/coverage
+coverage/*
+/coverage/
+/dist
+/dist/*
 # Logs
 logs
 *.log

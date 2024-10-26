@@ -20,4 +20,5 @@ export const Messages = {
   ALREADY_DELETED: 'Already deleted',
   BUSINESS_UPDATED: 'Business updated successfully',
   BRANCH_CREATED: 'Branch created successfully',
+  BRANCHES_FOUND: 'Branches found successfully',
 }

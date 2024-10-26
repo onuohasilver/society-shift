@@ -37,5 +37,13 @@ export const BusinessController = () => {
     return formatResponse(res, response.code, response.message, response.data)
   }
 
-  return { createBusiness, getBusinessById, updateBusiness, createNewBranch }
+  const fetchAllBusinessBranches = async (req: Request, res: Response) => {
+    const { id } = req.params
+    const page = Number(req.query.page)
+    const limit = Number(req.query.limit)
+    const response = await BusinessInteractor().fetchAllBusinessBranches(id, page, limit)
+    return formatResponse(res, response.code, response.message, response.data)
+  }
+
+  return { createBusiness, getBusinessById, updateBusiness, createNewBranch, fetchAllBusinessBranches }
 }

@@ -2,9 +2,11 @@ import { BusinessType } from '../types/business/business.type'
 import BusinessModel, { BusinessDocument } from '../models/business.model'
 import { dataResponse } from '../utilities/format.response'
 import { Messages, StatusCodes } from '../data'
-import { returnIfNotDeleted } from '../utilities/mongoose/return.if.deleted'
-import { updateIfFound } from '../utilities/mongoose/update.if.found'
-import mongoose from 'mongoose'
+import {
+  returnIfNotDeleted,
+  updateIfFound,
+  returnAndPaginate,
+} from '../utilities/mongoose'
 
 export const BusinessInteractor = () => {
   const createBusiness = async (businessData: Partial<BusinessType>) => {
@@ -26,7 +28,7 @@ export const BusinessInteractor = () => {
   }
 
   const getBusinessById = async (id: string) => {
-    return returnIfNotDeleted(
+    return returnIfNotDeleted<BusinessDocument>(
       BusinessModel,
       id,
       Messages.BUSINESS_NOT_FOUND,
@@ -84,5 +86,26 @@ export const BusinessInteractor = () => {
     }
   }
 
-  return { createBusiness, getBusinessById, updateBusiness, createNewBranch }
+  const fetchAllBusinessBranches = async (
+    id: string,
+    page: number = 1,
+    limit: number = 10
+  ) => {
+    const query = { parentBranch: id}
+    return returnAndPaginate<BusinessDocument>(
+      BusinessModel,
+      query,
+      page,
+      limit,
+      Messages.BRANCHES_FOUND
+    )
+  }
+
+  return {
+    createBusiness,
+    getBusinessById,
+    updateBusiness,
+    createNewBranch,
+    fetchAllBusinessBranches,
+  }
 }

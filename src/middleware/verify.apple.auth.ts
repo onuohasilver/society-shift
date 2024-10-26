@@ -1,23 +1,18 @@
 import { Request, Response, NextFunction } from 'express'
 import formatResponse from '../utilities/format.response'
 import { verifyAppleToken } from '../services/auth/apple.verifier.service'
+import { ErrorMessages } from '../data/errors'
+import { RequestHeaders } from '../data/headers'
 
 async function verifyAppleIDToken(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  const token = req.headers['x-social-token'] as string
+  const token = req.headers[RequestHeaders.SOCIAL_TOKEN] as string
 
   if (!token) {
-    return formatResponse(
-      {
-        status: 'error',
-        message: 'Token is missing',
-        data: { error: 'token is missing' },
-      },
-      res
-    )
+    return formatResponse(res, 400, ErrorMessages.TOKEN_MISSING)
   }
 
   try {
@@ -33,14 +28,7 @@ async function verifyAppleIDToken(
     return next()
   } catch (error) {
     console.log(error, 'token errors')
-    return formatResponse(
-      {
-        status: 'error',
-        message: 'Failed to get token',
-        data: { error: (error as Error).message },
-      },
-      res
-    )
+    return formatResponse(res, 401, ErrorMessages.TOKEN_INVALID, error)
   }
 }
 

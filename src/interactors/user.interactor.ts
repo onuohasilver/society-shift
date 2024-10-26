@@ -3,6 +3,7 @@ import UserModel from '../models/user.model'
 import { UserType } from '../types/user/user.type'
 import { generateWordReferralCode } from '../utilities/referral.code.gen'
 import { dataResponse } from '../utilities/format.response'
+import { ErrorMessages } from '../data/errors'
 
 export const UserInteractor = () => {
   //1. Create a user
@@ -14,7 +15,11 @@ export const UserInteractor = () => {
     try {
       const existingUser = await UserModel.findOne({ subId: userData.subId })
       if (existingUser) {
-        return dataResponse('User already exists', existingUser, 200)
+        return dataResponse(
+          ErrorMessages.USER_ALREADY_EXISTS,
+          existingUser,
+          200
+        )
       }
       let user = new UserModel(userData)
       const token = generateToken(user._id as string)
@@ -22,9 +27,9 @@ export const UserInteractor = () => {
       user.token = token
       user.referralCode = referralCode
       await user.save()
-      return dataResponse('User created successfully', user, 201)
+      return dataResponse(ErrorMessages.USER_CREATED, user, 201)
     } catch (error) {
-      return dataResponse('Internal server error', error, 500)
+      return dataResponse(ErrorMessages.INTERNAL_SERVER_ERROR, error, 500)
     }
   }
 

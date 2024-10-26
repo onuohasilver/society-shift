@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { LoginTicket, OAuth2Client, TokenPayload } from 'google-auth-library'
 import formatResponse from '../utilities/format.response'
+import { ErrorMessages } from '../data/errors'
 
 const client = new OAuth2Client()
 async function verifyGoogleToken(
@@ -11,7 +12,7 @@ async function verifyGoogleToken(
   const token = req.headers['x-access-token'] as string
 
   if (!token) {
-    return formatResponse(res, 400, 'Token is Missing')
+    return formatResponse(res, 400, ErrorMessages.TOKEN_MISSING)
   }
   const ticket = await client
     .verifyIdToken({
@@ -21,7 +22,7 @@ async function verifyGoogleToken(
     })
     .catch((error) => {
       console.log(error, 'token errors')
-      return formatResponse(res, 400, 'Token was wrong')
+      return formatResponse(res, 400, ErrorMessages.TOKEN_INVALID)
     })
   const tokenPayload: TokenPayload = (
     ticket as LoginTicket

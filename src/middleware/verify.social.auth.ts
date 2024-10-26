@@ -2,23 +2,17 @@ import { Request, Response, NextFunction } from 'express'
 import verifyGoogleToken from './verify.google.auth'
 import verifyAppleIDToken from './verify.apple.auth'
 import formatResponse from '../utilities/format.response'
-
+import { ErrorMessages } from '../data/errors'
+import { RequestHeaders } from '../data/headers'
 async function verifySocialToken(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  const social = req.headers['x-social-provider'] as string
+  const social = req.headers[RequestHeaders.SOCIAL_PROVIDER] as string
 
   if (!social) {
-    return formatResponse(
-      {
-        status: 'error',
-        message: 'Social provider is missing',
-        data: { error: 'Social provider is missing' },
-      },
-      res
-    )
+    return formatResponse(res, 401, ErrorMessages.SOCIAL_PROVIDER_MISSING)
   }
 
   switch (social.toLowerCase()) {

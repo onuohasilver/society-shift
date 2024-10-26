@@ -11,14 +11,7 @@ async function verifyGoogleToken(
   const token = req.headers['x-access-token'] as string
 
   if (!token) {
-    return formatResponse(
-      {
-        error: 'Token is Missing',
-        message: 'Token is missing',
-        status: 'error',
-      },
-      res
-    )
+    return formatResponse(res, 400, 'Token is Missing')
   }
   const ticket = await client
     .verifyIdToken({
@@ -28,14 +21,7 @@ async function verifyGoogleToken(
     })
     .catch((error) => {
       console.log(error, 'token errors')
-      return formatResponse(
-        {
-          error: 'Token is Missing',
-          message: 'Token is missing',
-          status: 'error',
-        },
-        res
-      )
+      return formatResponse(res, 400, 'Token was wrong')
     })
   const tokenPayload: TokenPayload = (
     ticket as LoginTicket

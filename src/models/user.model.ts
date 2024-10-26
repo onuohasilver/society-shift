@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose'
-import { User } from '../types/user/user.type'
+import { UserType } from '../types/user/user.type'
 
-export interface UserDocument extends User, Document {}
+export interface UserDocument extends UserType, Document {}
 
 const UserSchema: Schema = new Schema<UserDocument>(
   {
@@ -11,6 +11,8 @@ const UserSchema: Schema = new Schema<UserDocument>(
     subId: { type: String },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
+    token: { type: String },
+    referralCode: { type: String },
   },
   {
     timestamps: true,

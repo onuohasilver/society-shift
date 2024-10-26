@@ -1,5 +1,5 @@
 export const mockGoogleTokenPayload = {
-  sub: '123',
-  email: 'test@test.com',
-  name: 'test',
+  sub: '9823487234871237812',
+  email: 'test@gmail.com',
+  name: 'Test Kextu',
 }

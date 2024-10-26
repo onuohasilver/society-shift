@@ -29,7 +29,6 @@ async function verifyGoogleToken(
       })
     return (ticket as LoginTicket).getPayload() as TokenPayload
   }, mockGoogleTokenPayload as TokenPayload)
-  console.log(tokenPayload)
   req.body.subId = tokenPayload.sub as string
   req.body.email = tokenPayload.email as string
   req.body.name = tokenPayload.name as string

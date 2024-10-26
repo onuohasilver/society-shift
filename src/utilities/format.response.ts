@@ -1,5 +1,4 @@
 import { Response } from 'express'
-import { AppResponseType } from '../types/response.type'
 
 const formatResponse = (
   res: Response,

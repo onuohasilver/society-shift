@@ -8,4 +8,6 @@ export interface UserType {
   referralCode?: string
   createdAt: Date
   updatedAt: Date
+  isDeleted?: boolean
+  avatar?: string
 }

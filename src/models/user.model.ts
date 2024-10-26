@@ -13,6 +13,8 @@ const UserSchema: Schema = new Schema<UserDocument>(
     updatedAt: { type: Date, default: Date.now },
     token: { type: String },
     referralCode: { type: String },
+    avatar: { type: String },
+    isDeleted: { type: Boolean, default: false },
   },
   {
     timestamps: true,

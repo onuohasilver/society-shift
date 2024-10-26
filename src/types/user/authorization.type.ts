@@ -1,5 +1,4 @@
-export interface Authorization {
+export interface AuthorizationType {
   userId: string
-  pinHash: string
   token: string
 }

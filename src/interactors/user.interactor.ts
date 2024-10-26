@@ -1,9 +1,14 @@
 import { generateToken } from '../services/auth/create.token.service'
-import UserModel from '../models/user.model'
+import UserModel, { UserDocument } from '../models/user.model'
 import { UserType } from '../types/user/user.type'
 import { generateWordReferralCode } from '../utilities/referral.code.gen'
 import { dataResponse } from '../utilities/format.response'
 import { Messages, StatusCodes } from '../data'
+import { AuthorizationInteractor } from './authorization.interactor'
+import { returnIfNotDeleted } from '../utilities/mongoose/return.if.deleted'
+import { updateIfFound } from '../utilities/mongoose/update.if.found'
+
+const { createAuthorization } = AuthorizationInteractor()
 
 export const UserInteractor = () => {
   //1. Create a user
@@ -22,9 +27,9 @@ export const UserInteractor = () => {
         )
       }
       let user = new UserModel(userData)
-      const token = generateToken(user._id as string)
+
       const referralCode = generateWordReferralCode()
-      user.token = token
+      await createAuthorization(user._id as string)
       user.referralCode = referralCode
       await user.save()
       return dataResponse(Messages.USER_CREATED, user, StatusCodes.CREATED)
@@ -38,11 +43,15 @@ export const UserInteractor = () => {
   }
 
   const getUserById = async (userId: string) => {
-    const user = await UserModel.findById(userId)
-    return dataResponse(Messages.USER_FOUND, user, StatusCodes.SUCCESS)
+    return returnIfNotDeleted<UserDocument>(
+      UserModel,
+      userId,
+      Messages.USER_NOT_FOUND,
+      Messages.USER_ALREADY_DELETED
+    )
   }
 
-  const updateUser = async (userId: string, userData: UserType) => {
+  const updateUser = async (userId: string, userData: Partial<UserType>) => {
     if (Object.keys(userData).length === 1) {
       return dataResponse(
         Messages.USER_UPDATE_DATA_MISSING,
@@ -50,15 +59,25 @@ export const UserInteractor = () => {
         StatusCodes.BAD_REQUEST
       )
     }
-    const user = await UserModel.findByIdAndUpdate(userId, userData, {
-      new: true,
-    })
-    return dataResponse(Messages.USER_UPDATED, user, StatusCodes.SUCCESS)
+    return updateIfFound<UserDocument>(
+      UserModel,
+      userId,
+      userData,
+      Messages.USER_UPDATED,
+      Messages.USER_NOT_FOUND,
+      Messages.USER_ALREADY_DELETED
+    )
+  }
+
+  const deleteUser = async (userId: string) => {
+    const user = await updateUser(userId, { isDeleted: true })
+    return dataResponse(Messages.USER_DELETED, user, StatusCodes.SUCCESS)
   }
 
   return {
     createUser,
     getUserById,
     updateUser,
+    deleteUser,
   }
 }

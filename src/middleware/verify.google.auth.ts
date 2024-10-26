@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { LoginTicket, OAuth2Client, TokenPayload } from 'google-auth-library'
 import formatResponse from '../utilities/format.response'
-import { ErrorMessages } from '../data/errors'
+import { Messages } from '../data/errors'
 import { RequestHeaders } from '../data/headers'
 import { runOrMock } from '../utilities/run.or.mock'
 import { mockGoogleTokenPayload } from '../data/mocks/mock.google.token.payload'
@@ -14,7 +14,7 @@ async function verifyGoogleToken(
 ) {
   const token = req.headers[RequestHeaders.SOCIAL_TOKEN] as string
   if (!token) {
-    return formatResponse(res, 400, ErrorMessages.TOKEN_MISSING)
+    return formatResponse(res, 400, Messages.TOKEN_MISSING)
   }
 
   const tokenPayload = await runOrMock(async () => {
@@ -25,7 +25,7 @@ async function verifyGoogleToken(
           '221900142607-kuvff9428irl1loop402q31dsj0i1d8q.apps.googleusercontent.com',
       })
       .catch(() => {
-        return formatResponse(res, 400, ErrorMessages.TOKEN_INVALID)
+        return formatResponse(res, 400, Messages.TOKEN_INVALID)
       })
     return (ticket as LoginTicket).getPayload() as TokenPayload
   }, mockGoogleTokenPayload as TokenPayload)

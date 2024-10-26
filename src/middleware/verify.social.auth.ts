@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import verifyGoogleToken from './verify.google.auth'
 import verifyAppleIDToken from './verify.apple.auth'
 import formatResponse from '../utilities/format.response'
-import { ErrorMessages } from '../data/errors'
+import { Messages } from '../data/errors'
 import { RequestHeaders } from '../data/headers'
 async function verifySocialToken(
   req: Request,
@@ -12,7 +12,7 @@ async function verifySocialToken(
   const social = req.headers[RequestHeaders.SOCIAL_PROVIDER] as string
 
   if (!social) {
-    return formatResponse(res, 401, ErrorMessages.SOCIAL_PROVIDER_MISSING)
+    return formatResponse(res, 401, Messages.SOCIAL_PROVIDER_MISSING)
   }
 
   switch (social.toLowerCase()) {

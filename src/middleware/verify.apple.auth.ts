@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import formatResponse from '../utilities/format.response'
 import { verifyAppleToken } from '../services/auth/apple.verifier.service'
-import { ErrorMessages } from '../data/errors'
+import { Messages } from '../data/errors'
 import { RequestHeaders } from '../data/headers'
 
 async function verifyAppleIDToken(
@@ -12,7 +12,7 @@ async function verifyAppleIDToken(
   const token = req.headers[RequestHeaders.SOCIAL_TOKEN] as string
 
   if (!token) {
-    return formatResponse(res, 400, ErrorMessages.TOKEN_MISSING)
+    return formatResponse(res, 400, Messages.TOKEN_MISSING)
   }
 
   try {
@@ -28,7 +28,7 @@ async function verifyAppleIDToken(
     return next()
   } catch (error) {
     console.log(error, 'token errors')
-    return formatResponse(res, 401, ErrorMessages.TOKEN_INVALID, error)
+    return formatResponse(res, 401, Messages.TOKEN_INVALID, error)
   }
 }
 

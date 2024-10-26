@@ -4,6 +4,8 @@ import { dataResponse } from '../utilities/format.response'
 import { Messages, StatusCodes } from '../data'
 import { returnIfNotDeleted } from '../utilities/mongoose/return.if.deleted'
 import { updateIfFound } from '../utilities/mongoose/update.if.found'
+import mongoose from 'mongoose'
+
 export const BusinessInteractor = () => {
   const createBusiness = async (businessData: Partial<BusinessType>) => {
     try {
@@ -46,5 +48,41 @@ export const BusinessInteractor = () => {
     )
   }
 
-  return { createBusiness, getBusinessById, updateBusiness }
+  const createNewBranch = async (id: string, location: string) => {
+    const response = await returnIfNotDeleted<BusinessDocument>(
+      BusinessModel,
+      id,
+      Messages.BUSINESS_NOT_FOUND,
+      Messages.BUSINESS_ALREADY_DELETED
+    )
+    if (response.code !== StatusCodes.SUCCESS) {
+      return response
+    }
+    try {
+      const business = response.data
+      business.branchCounter = business.branchCounter + 1
+      const newBranchData = {
+        ...business.toObject(),
+        parentBranch: business._id,
+        location: location,
+      }
+      delete newBranchData._id
+      const newBranch = new BusinessModel(newBranchData)
+      await newBranch.save()
+      await business.save()
+      return dataResponse(
+        Messages.BRANCH_CREATED,
+        newBranch,
+        StatusCodes.CREATED
+      )
+    } catch (error) {
+      return dataResponse(
+        Messages.INTERNAL_SERVER_ERROR,
+        error,
+        StatusCodes.INTERNAL_SERVER_ERROR
+      )
+    }
+  }
+
+  return { createBusiness, getBusinessById, updateBusiness, createNewBranch }
 }

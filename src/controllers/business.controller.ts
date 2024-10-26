@@ -30,5 +30,12 @@ export const BusinessController = () => {
     return formatResponse(res, response.code, response.message, response.data)
   }
 
-  return { createBusiness, getBusinessById, updateBusiness }
+  const createNewBranch = async (req: Request, res: Response) => {
+    const { id } = req.params
+    const { location } = req.body
+    const response = await BusinessInteractor().createNewBranch(id, location)
+    return formatResponse(res, response.code, response.message, response.data)
+  }
+
+  return { createBusiness, getBusinessById, updateBusiness, createNewBranch }
 }

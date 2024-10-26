@@ -15,5 +15,6 @@ export interface BusinessType {
   sector: BusinessSector
   branchCounter: number
   location: string
+  parentBranch: Schema.Types.ObjectId
   owner: Schema.Types.ObjectId
 }

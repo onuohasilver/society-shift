@@ -36,6 +36,10 @@ const BusinessSchema = new Schema<BusinessDocument>({
   sector: { type: String, required: true },
   isDeleted: { type: Boolean, required: true, default: false },
   branchCounter: { type: Number, required: true, default: 0 },
+  parentBranch: {
+    type: Schema.Types.ObjectId,
+    ref: 'Business',
+  },
   owner: { type: String, required: true, ref: 'User' },
 })
 

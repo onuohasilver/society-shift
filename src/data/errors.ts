@@ -19,4 +19,5 @@ export const Messages = {
   NOT_FOUND: 'Not found',
   ALREADY_DELETED: 'Already deleted',
   BUSINESS_UPDATED: 'Business updated successfully',
+  BRANCH_CREATED: 'Branch created successfully',
 }

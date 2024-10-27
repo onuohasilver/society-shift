@@ -36,6 +36,5 @@ export const returnIfNotDeleted = async <T extends Document>(
   if (document.isDeleted) {
     return dataResponse(deletedMessage, null, StatusCodes.NOT_FOUND)
   }
-
   return dataResponse(Messages.FOUND, document, StatusCodes.SUCCESS)
 }

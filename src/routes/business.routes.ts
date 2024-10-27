@@ -15,4 +15,5 @@ router.get('/:id', verifyAccessToken, getBusinessById)
 router.patch('/:id', verifyAccessToken, updateBusiness)
 router.post('/:id/branch', verifyAccessToken, createNewBranch)
 router.get('/:id/branches', verifyAccessToken, fetchAllBusinessBranches)
+
 export default router

@@ -22,10 +22,17 @@ import { Messages, StatusCodes } from '../../data'
  * 4. If the document exists and is not deleted, returns it with a success message.
  */
 export const returnIfNotDeleted = async <T extends Document>(
-  model: Model<T & { isDeleted?: boolean }>,
-  id: string,
-  notFoundMessage: string = Messages.NOT_FOUND,
-  deletedMessage: string = Messages.ALREADY_DELETED
+  {
+    model,
+    id,
+    notFoundMessage = Messages.NOT_FOUND,
+    deletedMessage = Messages.ALREADY_DELETED
+  }: {
+    model: Model<T & { isDeleted?: boolean }>;
+    id: string;
+    notFoundMessage?: string;
+    deletedMessage?: string;
+  }
 ) => {
   const document = await model.findById(id)
 

@@ -22,4 +22,7 @@ export const Messages = {
   BRANCH_CREATED: 'Branch created successfully',
   BRANCHES_FOUND: 'Branches found successfully',
   EMPLOYEE_CREATED: 'Employee created successfully',
+  EMPLOYEE_UPDATED: 'Employee updated successfully',
+  EMPLOYEES_FOUND: 'Employees found successfully',
+  CREATED: 'Created',
 }

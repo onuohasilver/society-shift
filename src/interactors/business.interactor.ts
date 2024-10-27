@@ -6,84 +6,72 @@ import {
   returnIfNotDeleted,
   updateIfFound,
   returnAndPaginate,
+  skipPreProcess,
+  saveAndReturn,
 } from '../utilities/mongoose'
 
 export const BusinessInteractor = () => {
   const createBusiness = async (businessData: Partial<BusinessType>) => {
-    try {
-      const business = new BusinessModel(businessData)
-      await business.save()
-      return dataResponse(
-        Messages.BUSINESS_CREATED,
-        business,
-        StatusCodes.CREATED
-      )
-    } catch (error) {
-      return dataResponse(
-        Messages.INTERNAL_SERVER_ERROR,
-        error,
-        StatusCodes.INTERNAL_SERVER_ERROR
-      )
-    }
+    return saveAndReturn<BusinessDocument>({
+      model: BusinessModel,
+      data: businessData,
+      successMessage: Messages.BUSINESS_CREATED,
+      preProcess: skipPreProcess,
+    })
   }
 
   const getBusinessById = async (id: string) => {
-    return returnIfNotDeleted<BusinessDocument>(
-      BusinessModel,
+    return returnIfNotDeleted<BusinessDocument>({
+      model: BusinessModel,
       id,
-      Messages.BUSINESS_NOT_FOUND,
-      Messages.BUSINESS_ALREADY_DELETED
-    )
+      notFoundMessage: Messages.BUSINESS_NOT_FOUND,
+      deletedMessage: Messages.BUSINESS_ALREADY_DELETED,
+    })
   }
 
   const updateBusiness = async (
     id: string,
     businessData: Partial<BusinessType>
   ) => {
-    return updateIfFound<BusinessDocument>(
-      BusinessModel,
+    return updateIfFound<BusinessDocument>({
+      model: BusinessModel,
       id,
-      businessData,
-      Messages.BUSINESS_UPDATED,
-      Messages.BUSINESS_NOT_FOUND,
-      Messages.BUSINESS_ALREADY_DELETED
-    )
+      updateData: businessData,
+      updatedMessage: Messages.BUSINESS_UPDATED,
+      notFoundMessage: Messages.BUSINESS_NOT_FOUND,
+      deletedMessage: Messages.BUSINESS_ALREADY_DELETED,
+    })
   }
 
   const createNewBranch = async (id: string, location: string) => {
-    const response = await returnIfNotDeleted<BusinessDocument>(
-      BusinessModel,
-      id,
-      Messages.BUSINESS_NOT_FOUND,
-      Messages.BUSINESS_ALREADY_DELETED
-    )
-    if (response.code !== StatusCodes.SUCCESS) {
-      return response
-    }
-    try {
-      const business = response.data
-      business.branchCounter = business.branchCounter + 1
-      const newBranchData = {
-        ...business.toObject(),
-        parentBranch: business._id,
-        location: location,
-      }
-      delete newBranchData._id
-      const newBranch = new BusinessModel(newBranchData)
-      await newBranch.save()
-      await business.save()
-      return dataResponse(
-        Messages.BRANCH_CREATED,
-        newBranch,
-        StatusCodes.CREATED
-      )
-    } catch (error) {
-      return dataResponse(
-        Messages.INTERNAL_SERVER_ERROR,
-        error,
-        StatusCodes.INTERNAL_SERVER_ERROR
-      )
-    }
+    return saveAndReturn<BusinessDocument>({
+      model: BusinessModel,
+      data: { location },
+      successMessage: Messages.BRANCH_CREATED,
+      preProcess: async (data) => {
+        const response = await returnIfNotDeleted<BusinessDocument>({
+          model: BusinessModel,
+          id,
+          notFoundMessage: Messages.BUSINESS_NOT_FOUND,
+          deletedMessage: Messages.BUSINESS_ALREADY_DELETED,
+        })
+        if (response.code !== StatusCodes.SUCCESS) {
+          return { shouldProceed: false, result: response }
+        }
+        const business = response.data
+        business.branchCounter += 1
+        await business.save()
+        return { shouldProceed: true, result: business }
+      },
+      updateBeforeSave: (newBranch) => {
+        const business = newBranch
+        Object.assign(newBranch, business.toObject(), {
+          parentBranch: business._id,
+          location: location,
+        })
+        delete newBranch._id
+      },
+    })
   }
 
   const fetchAllBusinessBranches = async (
@@ -91,14 +79,14 @@ export const BusinessInteractor = () => {
     page: number = 1,
     limit: number = 10
   ) => {
-    const query = { parentBranch: id}
-    return returnAndPaginate<BusinessDocument>(
-      BusinessModel,
+    const query = { parentBranch: id }
+    return returnAndPaginate<BusinessDocument>({
+      model: BusinessModel,
       query,
       page,
       limit,
-      Messages.BRANCHES_FOUND
-    )
+      foundMessage: Messages.BRANCHES_FOUND,
+    })
   }
 
   return {

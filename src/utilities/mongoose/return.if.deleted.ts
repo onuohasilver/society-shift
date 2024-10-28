@@ -1,4 +1,4 @@
-import { Model, Document } from 'mongoose'
+import { Model, Document, PopulateOptions } from 'mongoose'
 import { dataResponse } from '../format.response'
 import { Messages, StatusCodes } from '../../data'
 
@@ -21,20 +21,26 @@ import { Messages, StatusCodes } from '../../data'
  * 3. If the document is marked as deleted, returns an "already deleted" response.
  * 4. If the document exists and is not deleted, returns it with a success message.
  */
-export const returnIfNotDeleted = async <T extends Document>(
-  {
-    model,
-    id,
-    notFoundMessage = Messages.NOT_FOUND,
-    deletedMessage = Messages.ALREADY_DELETED
-  }: {
-    model: Model<T & { isDeleted?: boolean }>;
-    id: string;
-    notFoundMessage?: string;
-    deletedMessage?: string;
+export const returnIfNotDeleted = async <T extends Document>({
+  model,
+  id,
+  notFoundMessage = Messages.NOT_FOUND,
+  deletedMessage = Messages.ALREADY_DELETED,
+  populate,
+}: {
+  model: Model<T & { isDeleted?: boolean }>
+  id: string
+  notFoundMessage?: string
+  deletedMessage?: string
+  populate?: PopulateOptions | PopulateOptions[]
+}) => {
+  let query = model.findById(id)
+
+  if (populate) {
+    query = query.populate(populate)
   }
-) => {
-  const document = await model.findById(id)
+
+  const document = await query.exec()
 
   if (!document) {
     return dataResponse(notFoundMessage, null, StatusCodes.NOT_FOUND)
@@ -43,5 +49,6 @@ export const returnIfNotDeleted = async <T extends Document>(
   if (document.isDeleted) {
     return dataResponse(deletedMessage, null, StatusCodes.NOT_FOUND)
   }
+
   return dataResponse(Messages.FOUND, document, StatusCodes.SUCCESS)
 }

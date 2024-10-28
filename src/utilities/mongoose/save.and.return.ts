@@ -35,7 +35,7 @@ export const saveAndReturn = async <T extends Document>(
     model: Model<T>;
     data: Partial<T>;
     successMessage?: string;
-    preProcess: (data: Partial<T>) => Promise<{ shouldProceed: boolean; result?: any }>;
+    preProcess?: (data: Partial<T>) => Promise<{ shouldProceed: boolean; result?: any }>;
     updateBeforeSave?: (document: T) => void;
   }
 ) => {
@@ -61,6 +61,3 @@ export const saveAndReturn = async <T extends Document>(
     )
   }
 }
-
-export const skipPreProcess = async () => ({ shouldProceed: true })
-export const skipUpdateBeforeSave = (document: Document) => {}

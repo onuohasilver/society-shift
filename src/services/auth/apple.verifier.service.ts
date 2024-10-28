@@ -1,3 +1,8 @@
+/**
+ * Service for verifying Apple ID tokens and managing Apple JWT keys
+ * Provides functionality to validate Apple Sign In tokens and retrieve public keys
+ */
+
 import { JwtHeader } from 'jsonwebtoken'
 import * as jwt from 'jsonwebtoken'
 import * as jwksClient from 'jwks-rsa'
@@ -9,6 +14,11 @@ import {
 export const APPLE_BASE_URL = 'https://appleid.apple.com'
 export const JWKS_APPLE_URI = '/auth/keys'
 
+/**
+ * Retrieves the JSON Web Key (JWK) from Apple's JWKS endpoint for a given key ID
+ * @param kid - The key ID to retrieve
+ * @returns Promise containing the public key, key ID and algorithm
+ */
 export const getAppleJWK = async (kid: string) => {
   const client = jwksClient({
     cache: true,
@@ -29,12 +39,24 @@ export const getAppleJWK = async (kid: string) => {
   }
 }
 
+/**
+ * Gets the public key from Apple's JWKS for a given key ID
+ * @param kid - The key ID to retrieve the public key for
+ * @returns Promise containing the public key
+ */
 export const getApplePublicKey = async (kid: string) => {
   const jwk = await getAppleJWK(kid)
 
   return jwk.publicKey
 }
 
+/**
+ * Verifies an Apple ID token for authenticity and validity
+ * Checks the token signature, algorithm, issuer, audience and nonce
+ * @param params - Object containing idToken, nonce and clientId
+ * @returns Promise containing the verified token claims
+ * @throws Error if verification fails for any reason
+ */
 export const verifyAppleToken = async (params: VerifyAppleIdTokenParams) => {
   const decoded = jwt.decode(params.idToken, { complete: true })
   const { kid, alg: jwtAlg } = decoded?.header as JwtHeader

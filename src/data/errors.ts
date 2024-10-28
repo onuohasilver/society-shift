@@ -25,4 +25,8 @@ export const Messages = {
   EMPLOYEE_UPDATED: 'Employee updated successfully',
   EMPLOYEES_FOUND: 'Employees found successfully',
   CREATED: 'Created',
+  LOCATION_CREATED: 'Location created successfully',
+  LOCATION_UPDATED: 'Location updated successfully',
+  LOCATION_NOT_FOUND: 'Location not found',
+  LOCATION_ALREADY_DELETED: 'Location already deleted',
 }

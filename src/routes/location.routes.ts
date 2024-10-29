@@ -21,7 +21,6 @@ router.post(
 
 router.get(
   '/',
-  validateRequest(getLocationSchema, 'params'),
   verifyAccessToken,
   getLocations
 )

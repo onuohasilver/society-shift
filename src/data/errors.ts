@@ -29,4 +29,5 @@ export const Messages = {
   LOCATION_UPDATED: 'Location updated successfully',
   LOCATION_NOT_FOUND: 'Location not found',
   LOCATION_ALREADY_DELETED: 'Location already deleted',
+  USER_LOCATION_CHOSEN: 'User location chosen successfully',
 }

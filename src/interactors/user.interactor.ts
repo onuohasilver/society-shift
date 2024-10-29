@@ -10,7 +10,8 @@ import {
   saveAndReturn,
   updateIfFound,
 } from '../utilities/mongoose'
-
+import { LocationInteractor } from './location.interactor'
+import LocationModel from '../models/location.model'
 const { createAuthorization } = AuthorizationInteractor()
 
 export const UserInteractor = () => {
@@ -79,6 +80,10 @@ export const UserInteractor = () => {
       id: userId,
       notFoundMessage: Messages.USER_NOT_FOUND,
       deletedMessage: Messages.USER_ALREADY_DELETED,
+      populate: {
+        path: 'location',
+        model: LocationModel,
+      },
     })
   }
 
@@ -108,21 +113,6 @@ export const UserInteractor = () => {
       updatedMessage: Messages.USER_UPDATED,
       notFoundMessage: Messages.USER_NOT_FOUND,
       deletedMessage: Messages.USER_ALREADY_DELETED,
-      // Validate that update data contains more than one field
-      preProcess: async (data) => {
-        if (Object.keys(data).length === 1) {
-          return {
-            shouldProceed: false,
-            result: dataResponse(
-              Messages.USER_UPDATE_DATA_MISSING,
-              null,
-              StatusCodes.BAD_REQUEST
-            ),
-          }
-        }
-
-        return { shouldProceed: true }
-      },
     })
   }
 
@@ -147,10 +137,40 @@ export const UserInteractor = () => {
     return dataResponse(Messages.USER_DELETED, user, StatusCodes.SUCCESS)
   }
 
+  /**
+   * Updates a user's location preference
+   *
+   * @param {string} userId - The ID of the user to update
+   * @param {string} locationId - The ID of the location to set for the user
+   * @returns {Promise<{ message: string, data: UserDocument | null, code: number }>} Response containing the updated user or error
+   *
+   * @description
+   * This function performs the following steps:
+   * 1. Validates that the provided location exists and is not deleted
+   * 2. Updates the user's location using updateUser
+   * 3. Returns success response with the updated user
+   */
+  const chooseLocation = async (
+    userId: string,
+    locationId: string
+  ): Promise<{ message: string; data: UserDocument | null; code: number }> => {
+    const location = await LocationInteractor().getLocationById(locationId)
+    if (!location.data) {
+      return dataResponse(location.message, null, location.code)
+    }
+    const user = await updateUser(userId, { location: locationId })
+    return dataResponse(
+      Messages.USER_LOCATION_CHOSEN,
+      user,
+      StatusCodes.SUCCESS
+    )
+  }
+
   return {
     createUser,
     getUserById,
     updateUser,
     deleteUser,
+    chooseLocation,
   }
 }

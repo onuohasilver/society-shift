@@ -23,9 +23,17 @@ export const UserController = () => {
     return formatResponse(res, response.code, response.message, response.data)
   }
 
+  const chooseLocation = async (req: Request, res: Response) => {
+    const userId = req.body.user._id
+    const locationId = req.body.locationId
+    const response = await UserInteractor().chooseLocation(userId, locationId)
+    return formatResponse(res, response.code, response.message, response.data)
+  }
+
   return {
     createUser,
     getUserById,
     updateUser,
+    chooseLocation,
   }
 }

@@ -4,13 +4,14 @@ import verifyGoogleToken from '../middleware/verify.google.auth'
 import { verifyAccessToken } from '../middleware/verify.access.token'
 import { validateRequest } from '../middleware/validate.request'
 import {
+  chooseLocationSchema,
   createUserSchema,
   getUserByIdSchema,
   updateUserSchema,
 } from '../validation/user.validation'
 const router = express.Router()
 
-const { createUser, getUserById, updateUser } = UserController()
+const { createUser, getUserById, updateUser, chooseLocation } = UserController()
 
 router.post(
   '/register',
@@ -29,6 +30,12 @@ router.get(
   verifyAccessToken,
   validateRequest(getUserByIdSchema, 'params'),
   getUserById
+)
+router.patch(
+  '/choose-location',
+  validateRequest(chooseLocationSchema),
+  verifyAccessToken,
+  chooseLocation
 )
 
 export default router

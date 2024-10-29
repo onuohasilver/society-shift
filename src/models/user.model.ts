@@ -15,6 +15,7 @@ const UserSchema: Schema = new Schema<UserDocument>(
     referralCode: { type: String },
     avatar: { type: String },
     isDeleted: { type: Boolean, default: false },
+    location: { type: String },
   },
   {
     timestamps: true,

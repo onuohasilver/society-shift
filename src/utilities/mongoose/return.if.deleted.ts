@@ -10,16 +10,18 @@ import { Messages, StatusCodes } from '../../data'
  * @param {string} id - The unique identifier of the document to retrieve.
  * @param {string} [notFoundMessage=Messages.NOT_FOUND] - The message to return if the document is not found.
  * @param {string} [deletedMessage=Messages.ALREADY_DELETED] - The message to return if the document is marked as deleted.
+ * @param {(id: string) => Promise<{ shouldProceed: boolean, result?: any }>} [preProcess] - Optional function to perform pre-processing and potentially return early.
  * @returns {Promise<{ message: string, data: T | null, code: number }>} A promise that resolves to an object containing the response message, retrieved document (if successful), and status code.
  *
  * @throws {Error} If there's an internal server error during the retrieval process.
  *
  * @description
  * This function performs the following steps:
- * 1. Attempts to find the document by its ID.
- * 2. If the document is not found, returns a "not found" response.
- * 3. If the document is marked as deleted, returns an "already deleted" response.
- * 4. If the document exists and is not deleted, returns it with a success message.
+ * 1. If provided, calls the preProcess function for potential early return.
+ * 2. Attempts to find the document by its ID.
+ * 3. If the document is not found, returns a "not found" response.
+ * 4. If the document is marked as deleted, returns an "already deleted" response.
+ * 5. If the document exists and is not deleted, returns it with a success message.
  */
 export const returnIfNotDeleted = async <T extends Document>({
   model,
@@ -27,28 +29,45 @@ export const returnIfNotDeleted = async <T extends Document>({
   notFoundMessage = Messages.NOT_FOUND,
   deletedMessage = Messages.ALREADY_DELETED,
   populate,
+  preProcess,
 }: {
   model: Model<T & { isDeleted?: boolean }>
   id: string
   notFoundMessage?: string
   deletedMessage?: string
   populate?: PopulateOptions | PopulateOptions[]
+  preProcess?: (id: string) => Promise<{ shouldProceed: boolean; result?: any }>
 }) => {
-  let query = model.findById(id)
+  try {
+    if (preProcess) {
+      const { shouldProceed, result } = await preProcess(id)
+      if (!shouldProceed) {
+        return result
+      }
+    }
 
-  if (populate) {
-    query = query.populate(populate)
+    let query = model.findById(id)
+
+    if (populate) {
+      query = query.populate(populate)
+    }
+
+    const document = await query.exec()
+
+    if (!document) {
+      return dataResponse(notFoundMessage, null, StatusCodes.NOT_FOUND)
+    }
+
+    if (document.isDeleted) {
+      return dataResponse(deletedMessage, null, StatusCodes.NOT_FOUND)
+    }
+
+    return dataResponse(Messages.FOUND, document, StatusCodes.SUCCESS)
+  } catch (error) {
+    return dataResponse(
+      Messages.INTERNAL_SERVER_ERROR,
+      error,
+      StatusCodes.INTERNAL_SERVER_ERROR
+    )
   }
-
-  const document = await query.exec()
-
-  if (!document) {
-    return dataResponse(notFoundMessage, null, StatusCodes.NOT_FOUND)
-  }
-
-  if (document.isDeleted) {
-    return dataResponse(deletedMessage, null, StatusCodes.NOT_FOUND)
-  }
-
-  return dataResponse(Messages.FOUND, document, StatusCodes.SUCCESS)
 }

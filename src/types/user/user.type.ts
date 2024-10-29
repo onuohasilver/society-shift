@@ -9,5 +9,6 @@ export interface UserType {
   createdAt: Date
   updatedAt: Date
   isDeleted?: boolean
+  location?: string
   avatar?: string
 }

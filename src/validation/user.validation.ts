@@ -57,3 +57,10 @@ export const getUserByIdSchema: ValidationSchema = {
     pattern: /^[0-9a-fA-F]{24}$/, // MongoDB ObjectId pattern
   },
 }
+
+export const chooseLocationSchema: ValidationSchema = {
+  locationId: {
+    type: 'string',
+    required: true,
+  },
+}

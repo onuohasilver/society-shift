@@ -5,6 +5,7 @@ import { Messages } from '../data'
 import { returnAndPaginate } from '../utilities/mongoose/return.and.paginate'
 import { updateIfFound } from '../utilities/mongoose/update.if.found'
 import { UpdateQuery } from 'mongoose'
+import { returnIfNotDeleted } from '../utilities/mongoose'
 
 export const LocationInteractor = () => {
   const createLocation = async (locationData: Location) => {
@@ -23,6 +24,7 @@ export const LocationInteractor = () => {
       foundMessage: Messages.FOUND,
     })
   }
+
   const updateLocation = async (
     id: string,
     locationData: Partial<Location>
@@ -37,9 +39,19 @@ export const LocationInteractor = () => {
     })
   }
 
+  const getLocationById = async (id: string) => {
+    return await returnIfNotDeleted<LocationDocument>({
+      model: LocationModel,
+      id,
+      notFoundMessage: Messages.LOCATION_NOT_FOUND,
+      deletedMessage: Messages.LOCATION_ALREADY_DELETED,
+    })
+  }
+
   return {
     createLocation,
     getLocations,
     updateLocation,
+    getLocationById,
   }
 }

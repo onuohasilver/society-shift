@@ -30,4 +30,6 @@ export const Messages = {
   LOCATION_NOT_FOUND: 'Location not found',
   LOCATION_ALREADY_DELETED: 'Location already deleted',
   USER_LOCATION_CHOSEN: 'User location chosen successfully',
+  LOAN_CREATED: 'Loan created successfully',
+  LOAN_UPDATED: 'Loan updated successfully',
 }

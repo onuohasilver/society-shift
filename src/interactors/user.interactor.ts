@@ -96,10 +96,9 @@ export const UserInteractor = () => {
    *
    * @description
    * This function performs the following steps:
-   * 1. Validates that more than one field is being updated
-   * 2. Verifies the user exists and is not deleted
-   * 3. Updates the user with the provided data
-   * 4. Returns the updated user document
+   * 1. Verifies the user exists and is not deleted
+   * 2. Updates the user with the provided data
+   * 3. Returns the updated user document
    */
   const updateUser = async (
     userId: string,

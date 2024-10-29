@@ -43,18 +43,18 @@ export const updateIfFound = async <T extends Document>({
   notFoundMessage?: string
   deletedMessage?: string
   preProcess?: (
-    data: Partial<T>
+    data: Partial<T>,
+    document: T | null
   ) => Promise<{ shouldProceed: boolean; result?: any }>
 }) => {
   try {
+    const document = await model.findById(id)
     if (preProcess) {
-      const { shouldProceed, result } = await preProcess(updateData)
+      const { shouldProceed, result } = await preProcess(updateData, document)
       if (!shouldProceed) {
         return result
       }
     }
-
-    const document = await model.findById(id)
 
     if (!document) {
       return dataResponse(notFoundMessage, null, StatusCodes.NOT_FOUND)
